@@ -16,6 +16,7 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
+    "-": "^0.0.1",
     "@angular-devkit/build-angular": "~19.2.0",
     "@angular-devkit/core": "~19.2.0",
     "@angular-devkit/schematics": "~19.2.0",
@@ -29,6 +30,7 @@
     "@nx/eslint-plugin": "20.7.0",
     "@nx/jest": "20.7.0",
     "@nx/js": "20.7.0",
+    "@nx/nest": "^20.7.0",
     "@nx/web": "20.7.0",
     "@nx/workspace": "20.7.0",
     "@schematics/angular": "~19.2.0",
