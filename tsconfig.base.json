@@ -14,7 +14,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@mysmartfamily/backend-datas": ["libs/backend/datas/src/index.ts"],
+      "@mysmartfamily/backend-documents": [
+        "libs/backend/documents/src/index.ts"
+      ],
+      "@mysmartfamily/backend-emails": ["libs/backend/emails/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
