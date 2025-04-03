@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
-import { DatasController } from './datas.controller';
-import { DatasService } from './datas.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Test } from './test/entity/test.entity';
+import { TestModule } from './test/test.module';
 
 @Module({
-  controllers: [DatasController],
-  providers: [DatasService],
-  exports: [DatasService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'mysmartfamily',
+      password: '6X7sbpM4x)E^/9',
+      database: 'mysmartfamily',
+      entities: [Test],
+      synchronize: true,
+    }),
+    TestModule,
+  ],
 })
 export class DatasModule {}
