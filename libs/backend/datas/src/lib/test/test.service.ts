@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Test } from './entity/test.entity';
+import { FindTestDto } from './dto/find-test-dto';
 
 @Injectable()
 export class TestService {
@@ -19,7 +20,7 @@ export class TestService {
     return await this.testRepository.find().then((res) => res.map((test) => ({ ...test } as Test)));
   }
 
-  async read(filter: string, pageNumber: number, pageSize: number) {
+  async read(filter: string, pageNumber: number, pageSize: number): Promise<FindTestDto> {
     console.log(filter);
     console.log(pageNumber);
     console.log(pageSize);

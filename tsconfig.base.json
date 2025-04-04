@@ -19,7 +19,8 @@
       "@mysmartfamily/backend-documents": [
         "libs/backend/documents/src/index.ts"
       ],
-      "@mysmartfamily/backend-emails": ["libs/backend/emails/src/index.ts"]
+      "@mysmartfamily/backend-emails": ["libs/backend/emails/src/index.ts"],
+      "@mysmartfamily/shared-models": ["libs/shared/models/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
