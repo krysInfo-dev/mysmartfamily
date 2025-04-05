@@ -1,0 +1,37 @@
+<div class="upload-container">
+  <h2>Uploader des fichiers</h2>
+
+  <div
+    class="dropzone"
+    (drop)="onDrop($event)"
+    (dragover)="onDragOver($event)"
+  >
+    <p>Glissez vos fichiers ici ou</p>
+    <input
+      type="file"
+      id="fileInput"
+      hidden
+      multiple
+      [attr.accept]="allowedTypes.join(',')"
+      (change)="onFilesSelected($event)"
+      #fileInput
+    />
+    <button mat-raised-button color="primary" (click)="fileInput.click()">Choisir des fichiers</button>
+  </div>
+
+  <div *ngIf="selectedFiles.length > 0" class="file-list">
+    <p>Fichiers sélectionnés :</p>
+    <ul>
+      <li *ngFor="let file of selectedFiles">{{ file.name }} ({{ (file.size / 1024 / 1024) | number:'1.1-1' }} Mo)</li>
+    </ul>
+  </div>
+
+  <button mat-raised-button color="accent" (click)="upload()" [disabled]="selectedFiles.length === 0">
+    Envoyer les fichiers
+  </button>
+
+  <mat-progress-bar *ngIf="uploadProgress > 0" mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+
+  <p *ngIf="uploadMessage" class="message">{{ uploadMessage }}</p>
+</div>
+

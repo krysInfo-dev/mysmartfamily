@@ -20,6 +20,9 @@
         "libs/backend/documents/src/index.ts"
       ],
       "@mysmartfamily/backend-emails": ["libs/backend/emails/src/index.ts"],
+      "@mysmartfamily/frontend-files-uploader": [
+        "libs/frontend/files-uploader/src/index.ts"
+      ],
       "@mysmartfamily/shared-models": ["libs/shared/models/src/index.ts"]
     }
   },
