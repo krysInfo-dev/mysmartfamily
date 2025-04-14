@@ -78,7 +78,7 @@ jobs:
       - name: Build and push Front image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/front
+          context: .
           file: ./apps/front/Dockerfile
           push: true
           tags: |
