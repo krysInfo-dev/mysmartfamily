@@ -71,8 +71,8 @@ jobs:
           file: ./apps/api/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/api:latest
-            ghcr.io/${{ github.repository_owner }}/api:${{ github.sha }}
+            ghcr.io/krysinfo-dev/mysmartfamily2-api:latest
+            ghcr.io/krysinfo-dev/mysmartfamily2-api:${{ github.sha }}
 
 
       - name: Build and push Front image
@@ -82,6 +82,6 @@ jobs:
           file: ./apps/front/Dockerfile
           push: true
           tags: |
-              ghcr.io/${{ github.repository_owner }}/front:latest
-              ghcr.io/${{ github.repository_owner }}/front:${{ github.sha }}
+              ghcr.io/krysinfo-dev/mysmartfamily2-front:latest
+              ghcr.io/krysinfo-dev/mysmartfamily2-front:${{ github.sha }}
 
