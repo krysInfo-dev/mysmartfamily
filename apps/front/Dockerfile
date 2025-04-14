@@ -7,7 +7,8 @@ COPY ../../package*.json ./
 
 COPY . .
 
-RUN npm install -g nx && npm ci
+RUN npm install -g nx
+RUN npm install
 RUN nx build front --configuration=production
 
 # Stage 2: nginx
