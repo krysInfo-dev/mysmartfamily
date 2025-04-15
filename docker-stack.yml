@@ -23,7 +23,6 @@ services:
 
   api:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:${COMMIT_HASH:-latest}
-    restart: on-failure
     deploy:
       mode: replicated
       replicas: 2
@@ -53,12 +52,18 @@ services:
   front:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-front:${COMMIT_HASH:-latest}
     deploy:
+      mode: replicated
       replicas: 2
-      restart_policy:
-        condition: on-failure
       update_config:
         order: start-first
         failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any
+        delay: 5s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.front.rule=Host(`msf2.krysinfo.fr`)"
