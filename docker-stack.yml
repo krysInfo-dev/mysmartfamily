@@ -60,7 +60,7 @@ services:
       - brevo_api_key
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.routers.api.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/api`)"
       - "traefik.http.routers.api.middlewares=strip-prefix@docker,redirect-to-https@docker"
       - "traefik.http.routers.api-secure.entrypoints=websecure"
@@ -92,15 +92,15 @@ services:
         delay: 5s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.entrypoints=web"
-      - "traefik.http.routers.web.rule=Host(`smf2.krysinfo.fr`)"
-      - "traefik.http.routers.web.middlewares=redirect-to-https@docker"
-      - "traefik.http.routers.web-secure.entrypoints=websecure"
-      - "traefik.http.routers.web-secure.rule=Host(`smf2.krysinfo.fr`)"
-      - "traefik.http.routers.web-secure.tls=true"
-      - "traefik.http.routers.web-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.front.entrypoints=web"
+      - "traefik.http.routers.front.rule=Host(`smf2.krysinfo.fr`)"
+      - "traefik.http.routers.front.middlewares=redirect-to-https@docker"
+      - "traefik.http.routers.front-secure.entrypoints=websecure"
+      - "traefik.http.routers.front-secure.rule=Host(`smf2.krysinfo.fr`)"
+      - "traefik.http.routers.front-secure.tls=true"
+      - "traefik.http.routers.front-secure.tls.certresolver=letsencrypt"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.services.web-service.loadbalancer.server.port=8501"
+      - "traefik.http.services.front-service.loadbalancer.server.port=8501"
     depends_on:
       - api
 
