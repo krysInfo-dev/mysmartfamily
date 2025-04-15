@@ -7,7 +7,6 @@ services:
       - "--api.insecure=true"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false" # don't expose all containers by default
-      - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.email=dev-nau@krysinfo.fr"
@@ -60,10 +59,10 @@ services:
       - brevo_api_key
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.smf2.krysinfo.fr`)"
+      - "traefik.http.routers.api.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/api`)"
       - "traefik.http.routers.api.middlewares=strip-prefix@docker,redirect-to-https@docker"
       - "traefik.http.routers.api-secure.entrypoints=websecure"
-      - "traefik.http.routers.api-secure.rule=Host(`api.smf2.krysinfo.fr`)"
+      - "traefik.http.routers.api-secure.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/api`)"
       - "traefik.http.routers.api-secure.middlewares=strip-prefix@docker"
       - "traefik.http.routers.api-secure.tls=true"
       - "traefik.http.routers.api-secure.tls.certresolver=letsencrypt"
