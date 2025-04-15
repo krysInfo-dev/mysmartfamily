@@ -19,16 +19,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - letsencrypt_data:/letsencrypt
-    networks:
-      - web
 
   dufs:
     image: sigoden/dufs
     volumes:
       - dufs-data:/data
     command: -A -p 5000 /data
-    networks:
-      - internal
 
   mysql:
     image: mysql:8
@@ -42,8 +38,6 @@ services:
     secrets:
       - mysql_root_password
       - mysql_user_password
-    networks:
-      - internal
 
   api:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:${COMMIT_HASH:-latest}
@@ -76,9 +70,6 @@ services:
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.middlewares.strip-prefix.stripprefix.prefixes=/api"
       - "traefik.http.services.api-service.loadbalancer.server.port=8087"
-    networks:
-      - web
-      - internal
     depends_on:
       - dufs
       - mysql
@@ -111,18 +102,11 @@ services:
       - "traefik.http.services.web-service.loadbalancer.server.port=8501"
     depends_on:
       - api
-    networks:
-      - web
 
 volumes:
   mysql-data:
   dufs-data:
   letsencrypt_data:
-
-networks:
-  web:
-    external: true
-  internal:
 
 secrets:
   brevo_api_key:
