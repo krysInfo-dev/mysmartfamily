@@ -117,7 +117,7 @@ services:
 volumes:
   mysql-data:
   dufs-data:
-  traefik-certificates:
+  letsencrypt_data:
 
 networks:
   web:
