@@ -13,8 +13,4 @@ RUN nx build front --configuration=production
 FROM nginx:alpine
 
 COPY --from=builder /app/dist/apps/front/browser /usr/share/nginx/html
-COPY apps/front/nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
-USER nginx
-CMD ["nginx", "-g", "daemon off;"]
