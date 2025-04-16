@@ -1,22 +1,3 @@
-secrets:
-  brevo_api_key:
-    external: true
-  mysql_root_password:
-    external: true
-  mysql_user_password:
-    external: true
-
-volumes:
-  mysql-data:
-  dufs-data:
-  letsencrypt_data:
-
-networks:
-  proxy:
-    name: proxy
-    driver: overlay
-    attachable: true
-
 services:
 
   traefik:
@@ -32,21 +13,16 @@ services:
         protocol: tcp
         mode: host
     networks:
-        - proxy
-    environment:
-      - INFOMANIAK_ACCESS_TOKEN=${INFOMANIAK_ACCESS_TOKEN}
+      - proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - letsencrypt:/letsencrypt
-      - /var/log:/var/log
+      - acme:/home/deploy/acme
     command:
       - --providers.swarm=true
       - --providers.swarm.exposedByDefault=false
       - --providers.swarm.network=proxy
       - --log.level=DEBUG
-      - --log.filepath=/var/log/traefik.log
       - --accesslog=true
-      - --accesslog.filepath=/var/log/traefik-access.log
       - --api.dashboard=true
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
@@ -54,15 +30,9 @@ services:
       - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.asDefault=true
       - --entrypoints.websecure.http.tls.certresolver=le
-      - --entrypoints.websecure.http.tls.domains[0].main=smf2.krysinfo.fr
-      - --entrypoints.websecure.http.tls.domains[0].sans=*.smf2.krysinfo.fr
       - --certificatesresolvers.le.acme.email=dev-nau@krysinfo.fr
-      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.le.acme.dnschallenge.provider=infomaniak
-      - --certificatesresolvers.le.acme.dnschallenge.delaybeforecheck=60
-      - --certificatesresolvers.le.acme.dnschallenge.resolvers=nsany1.infomaniak.com:53,nsany2.infomaniak.com:53
-      - --certificatesresolvers.le.acme.storage=/certificates/acme.json
-      - --certificatesresolvers.le.acme.certificatesduration=2160
+      - --certificatesresolvers.le.acme.storage=/home/deploy/acme/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
     deploy:
       placement:
         constraints: [ node.role == manager ]
@@ -71,10 +41,10 @@ services:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.http.routers.mydashboard.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/tools/traefik`)
+        - traefik.http.routers.mydashboard.rule=Host(`traefik-smf2.krysinfo.fr`)
         - traefik.http.routers.mydashboard.service=api@internal
         - traefik.http.routers.mydashboard.middlewares=myauth
-        - traefik.http.services.mydashboard.loadbalancer.server.port=8080
+        - traefik.http.services.mydashboard.loadbalancer.server.port=1337
         - traefik.http.middlewares.myauth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/
 
   mysql:
@@ -115,7 +85,7 @@ services:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.http.routers.dufs.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/tools/dufs`)
+        - traefik.http.routers.dufs.rule=Host(`dufs.smf2.krysinfo.fr`)
         - traefik.http.services.dufs.loadbalancer.server.port=5000
 
   api:
@@ -149,10 +119,8 @@ services:
         delay: 5s
       labels:
         - traefik.enable=true
-        - traefik.http.routers.api.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/api`)
-        - traefik.http.routers.api.middlewares=strip-prefix@docker
+        - traefik.http.routers.api.rule=Host(`api.smf2.krysinfo.fr`)
         - traefik.http.services.api.loadbalancer.server.port=3000
-        - traefik.http.middlewares.strip-prefix.stripprefix.prefixes=/api
     depends_on:
       - dufs
       - mysql
@@ -181,3 +149,23 @@ services:
         - traefik.http.services.front.loadbalancer.server.port=80
     depends_on:
       - api
+
+secrets:
+  mysql_root_password:
+    external: true
+  mysql_user_password:
+    external: true
+  brevo_api_key:
+    external: true
+
+volumes:
+  dufs-data:
+  mysql-data:
+  acme:
+    name: acme
+
+networks:
+  proxy:
+    name: proxy
+    driver: overlay
+    attachable: true
