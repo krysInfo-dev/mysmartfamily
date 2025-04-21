@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EmailCampaignsApi, TransactionalEmailsApi, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
 import brevo = require('@getbrevo/brevo');
 import 'multer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmailsService {
@@ -11,10 +12,10 @@ export class EmailsService {
   private readonly transactionalApi: TransactionalEmailsApi;
   private readonly campaignApi: EmailCampaignsApi;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.transactionalApi = new brevo.TransactionalEmailsApi();
     this.campaignApi = new brevo.EmailCampaignsApi();
-    this.transactionalApi.setApiKey(TransactionalEmailsApiApiKeys.apiKey, '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');
+    this.transactionalApi.setApiKey(TransactionalEmailsApiApiKeys.apiKey, this.configService.get<string>('BREVO_API_KEY') || '');
   }
 
   // 📩 Envoi d'un mail transactionnel

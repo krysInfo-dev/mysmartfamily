@@ -52,8 +52,8 @@ services:
     hostname: '{{.Node.Hostname}}'
     environment:
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
+      MYSQL_DATABASE: mysmartfamily
+      MYSQL_USER: mysmartfamily
       MYSQL_PASSWORD_FILE: /run/secrets/mysql_user_password
     volumes:
       - mysql-data:/var/lib/mysql
@@ -92,12 +92,12 @@ services:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:latest
     hostname: '{{.Node.Hostname}}'
     environment:
-      BREVO_API_KEY_FILE: /run/secrets/brevo_api_key
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_USER: user
-      MYSQL_PASSWORD_FILE: /run/secrets/mysql_user_password
-      MYSQL_DB: mydb
+      BREVO_API_KEY: /run/secrets/brevo_api_key
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: mysmartfamily
+      DB_PASSWORD: /run/secrets/mysql_user_password
+      DB_NAME: mysmartfamily
       FILE_STORAGE_URL: http://dufs:5000
     secrets:
       - brevo_api_key
