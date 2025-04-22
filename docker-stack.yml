@@ -49,7 +49,6 @@ services:
 
   mysql:
     image: mysql:9
-    container_name: mysql-db
     hostname: '{{.Node.Hostname}}-mysql'
     environment:
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
@@ -72,7 +71,6 @@ services:
 
   dufs:
     image: sigoden/dufs:latest
-    container_name: dufs
     hostname: '{{.Node.Hostname}}-dufs'
     volumes:
       - dufs-data:/data
@@ -92,7 +90,6 @@ services:
 
   api:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:latest
-    container_name: api
     hostname: '{{.Node.Hostname}}-api'
     secrets:
       - brevo_api_key
@@ -113,7 +110,6 @@ services:
 
   front:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-front:latest
-    container_name: front
     hostname: '{{.Node.Hostname}}-front'
     networks:
       - proxy
