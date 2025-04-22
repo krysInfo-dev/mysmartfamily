@@ -19,7 +19,7 @@ COPY --from=builder /app/package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY entrypoint.sh /entrypoint.sh
+COPY --from=builder /app/apps/api/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
