@@ -48,7 +48,7 @@ services:
         - traefik.http.middlewares.myauth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/
 
   mysql:
-    image: mysql:8
+    image: mysql:9
     hostname: '{{.Node.Hostname}}'
     environment:
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
@@ -91,14 +91,6 @@ services:
   api:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:latest
     hostname: '{{.Node.Hostname}}'
-    environment:
-      BREVO_API_KEY: /run/secrets/brevo_api_key
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: mysmartfamily
-      DB_PASSWORD: /run/secrets/mysql_user_password
-      DB_NAME: mysmartfamily
-      FILE_STORAGE_URL: http://dufs:5000
     secrets:
       - brevo_api_key
       - mysql_user_password
