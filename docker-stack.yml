@@ -2,7 +2,7 @@ services:
 
   traefik:
     image: traefik:v3.2
-    hostname: '{{.Node.Hostname}}'
+    hostname: '{{.Node.Hostname}}-traefik'
     ports:
       - target: 80
         published: 80
@@ -49,7 +49,8 @@ services:
 
   mysql:
     image: mysql:9
-    hostname: '{{.Node.Hostname}}'
+    container_name: mysql-db
+    hostname: '{{.Node.Hostname}}-mysql'
     environment:
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
       MYSQL_DATABASE: mysmartfamily
@@ -71,7 +72,8 @@ services:
 
   dufs:
     image: sigoden/dufs:latest
-    hostname: '{{.Node.Hostname}}'
+    container_name: dufs
+    hostname: '{{.Node.Hostname}}-dufs'
     volumes:
       - dufs-data:/data
     command: -A -p 5000 /data
@@ -90,25 +92,17 @@ services:
 
   api:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:latest
-    hostname: '{{.Node.Hostname}}'
+    container_name: api
+    hostname: '{{.Node.Hostname}}-api'
     secrets:
       - brevo_api_key
       - mysql_user_password
     networks:
       - proxy
     deploy:
-      mode: replicated
-      replicas: 2
-      update_config:
-        order: start-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 1
-        delay: 10s
       restart_policy:
-        condition: any
-        delay: 5s
+        condition: on-failure
+      replicas: 1
       labels:
         - traefik.enable=true
         - traefik.http.routers.api.rule=Host(`api.smf2.krysinfo.fr`)
@@ -119,22 +113,14 @@ services:
 
   front:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-front:latest
-    hostname: '{{.Node.Hostname}}'
+    container_name: front
+    hostname: '{{.Node.Hostname}}-front'
     networks:
       - proxy
     deploy:
-      mode: replicated
-      replicas: 2
-      update_config:
-        order: start-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 1
-        delay: 10s
       restart_policy:
-        condition: any
-        delay: 5s
+        condition: on-failure
+      replicas: 1
       labels:
         - traefik.enable=true
         - traefik.http.routers.front.rule=Host(`smf2.krysinfo.fr`)

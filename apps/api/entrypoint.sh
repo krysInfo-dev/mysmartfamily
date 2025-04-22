@@ -1,6 +1,6 @@
 #!/bin/sh
 export BREVO_API_KEY=$(cat /run/secrets/brevo_api_key)
-export DB_HOST=localhost
+export DB_HOST=mysql-db
 export DB_PORT=3306
 export DB_NAME=mysmartfamily
 export DB_USER=mysmartfamily
