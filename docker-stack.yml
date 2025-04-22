@@ -94,6 +94,7 @@ services:
     secrets:
       - brevo_api_key
       - mysql_user_password
+      - mysql_root_password
     networks:
       - proxy
     deploy:
