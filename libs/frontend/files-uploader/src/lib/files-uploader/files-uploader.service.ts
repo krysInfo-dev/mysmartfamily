@@ -9,11 +9,12 @@ export class FilesUploaderService {
 
   readonly #http = inject(HttpClient);
 
-  uploadFile(file: File): Observable<HttpEvent<any>> {
+  uploadFile(isProduction: boolean, prodBaseUrl: string, file: File): Observable<HttpEvent<any>> {
+    const url = isProduction ? prodBaseUrl + '/' + this.uploadUrl : this.uploadUrl;
     const formData = new FormData();
     formData.append('file', file);
 
-    const req = new HttpRequest('POST', this.uploadUrl, formData, {
+    const req = new HttpRequest('POST', url, formData, {
       reportProgress: true,
       responseType: 'json'
     });

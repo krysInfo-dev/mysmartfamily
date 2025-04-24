@@ -18,7 +18,7 @@ export class EmailsService {
     this.transactionalApi.setApiKey(TransactionalEmailsApiApiKeys.apiKey, this.configService.get<string>('BREVO_API_KEY') || '');
   }
 
-  // 📩 Envoi d'un mail transactionnel
+  // Envoi d'un mail transactionnel
   async sendTransactionalEmail(
     to: string,
     subject: string,
@@ -61,7 +61,7 @@ export class EmailsService {
   }
 
 
-  // 📢 Création + envoi immédiat d’une campagne emailing
+  // Création + envoi immédiat d’une campagne emailing
   async sendMassEmail(
     campaignName: string,
     subject: string,
