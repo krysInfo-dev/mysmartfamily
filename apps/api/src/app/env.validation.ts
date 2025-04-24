@@ -33,7 +33,6 @@ class EnvironmentVariables {
 }
 
 export function validate(config: Record<string, unknown>) {
-  console.dir(config);
   const validatedConfig = plainToInstance(
     EnvironmentVariables,
     config,
