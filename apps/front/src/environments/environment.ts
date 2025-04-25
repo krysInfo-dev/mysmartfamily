@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api-smf2.krysinfo.fr',
+  apiBaseUrl: 'https://smf2.krysinfo.fr',
 };
