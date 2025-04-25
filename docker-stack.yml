@@ -25,14 +25,15 @@ services:
       - --accesslog=true
       - --api.dashboard=true
       - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=dev-nau@krysinfo.fr
+      - --certificatesresolvers.letsencrypt.acme.storage=/home/deploy/acme/acme.json
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entryPoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.asDefault=true
-      - --entrypoints.websecure.http.tls.certresolver=le
-      - --certificatesresolvers.le.acme.email=dev-nau@krysinfo.fr
-      - --certificatesresolvers.le.acme.storage=/home/deploy/acme/acme.json
-      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+
     deploy:
       placement:
         constraints: [ node.role == manager ]
