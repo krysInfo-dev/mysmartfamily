@@ -10,7 +10,7 @@ export class FilesUploaderService {
   readonly #http = inject(HttpClient);
 
   uploadFile(isProduction: boolean, prodBaseUrl: string, file: File): Observable<HttpEvent<any>> {
-    const url = isProduction ? prodBaseUrl + '/' + this.uploadUrl : this.uploadUrl;
+    const url = isProduction ? prodBaseUrl + this.uploadUrl : this.uploadUrl;
     const formData = new FormData();
     formData.append('file', file);
 

@@ -10,7 +10,7 @@ export class EmailsService {
   readonly #http = inject(HttpClient);
 
   private getBaseURL(): string {
-    return environment.production ? environment.apiBaseUrl + '/' + BASE_URL : BASE_URL;
+    return environment.production ? environment.apiBaseUrl + BASE_URL : BASE_URL;
   }
 
   sendTransactionalEmail(data: FormData) {

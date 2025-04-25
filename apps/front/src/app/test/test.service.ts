@@ -14,7 +14,7 @@ export class TestService {
   readonly #http = inject(HttpClient);
 
   private getBaseURL(): string {
-    return environment.production ? environment.apiBaseUrl + '/' + BASE_URL : BASE_URL;
+    return environment.production ? environment.apiBaseUrl + BASE_URL : BASE_URL;
   }
   createTest(test: ITest): Observable<void> {
     return this.#http.post<void>(this.getBaseURL(), test);
