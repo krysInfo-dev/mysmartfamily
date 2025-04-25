@@ -128,7 +128,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.front.entrypoints=web
         - traefik.http.routers.front.rule=Host(`smf2.krysinfo.fr`)
-        - traefik.http.routers.front.middlewares=front-redirect-to-http
+        - traefik.http.routers.front.middlewares=front-redirect-to-https
         - traefik.http.routers.front-secure.entrypoints=websecure
         - traefik.http.routers.front-secure.rule=Host(`smf2.krysinfo.fr`)
         - traefik.http.routers.front-secure.tls=true
