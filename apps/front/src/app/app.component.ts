@@ -21,6 +21,6 @@ export class AppComponent {
     allowedTypes: ['image/png', 'image/jpeg', 'application/pdf'],
     maxSizeMB: 5,
     isProduction: environment.production,
-    prodBaseUrl: environment.dufsBaseUrl,
+    prodBaseUrl: environment.apiBaseUrl,
   };
 }

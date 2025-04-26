@@ -92,6 +92,8 @@ services:
   api:
     image: ghcr.io/krysinfo-dev/mysmartfamily2-api:${COMMIT_HASH:-latest}
     hostname: '{{.Node.Hostname}}-api'
+    environment:
+      DUFS_MODE: prod
     secrets:
       - brevo_api_key
       - mysql_user_password
