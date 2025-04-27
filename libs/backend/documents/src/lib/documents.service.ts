@@ -9,7 +9,7 @@ export class DocumentsService {
   private readonly dufsBaseUrl = 'http://localhost:5000/';
 
   private getBaseUrl() {
-    return process.env['DUFS_MODE'] === 'prod' ? 'https://dufs.krysinfo.fr/' : this.dufsBaseUrl;
+    return process.env['DUFS_MODE'] === 'prod' ? 'https://dufs-smf2.krysinfo.fr/' : this.dufsBaseUrl;
   }
 
   async uploadToDufs(file: Express.Multer.File): Promise<any> {

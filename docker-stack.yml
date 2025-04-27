@@ -86,7 +86,7 @@ services:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.http.routers.dufs.rule=Host(`dufs.smf2.krysinfo.fr`)
+        - traefik.http.routers.dufs.rule=Host(`dufs-smf2.krysinfo.fr`)
         - traefik.http.services.dufs.loadbalancer.server.port=5000
 
   api:
