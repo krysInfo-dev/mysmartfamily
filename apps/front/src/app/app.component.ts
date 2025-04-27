@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TestComponent } from './test/test.component';
-import { FilesUploaderComponent } from '@mysmartfamily/frontend-files-uploader';
+import { FilesUploaderComponent, FilesUploaderConfig } from '@mysmartfamily/frontend-files-uploader';
 import { EmailsComponent } from './emails/emails.component';
+import { environment } from '../environments/environment';
 
 @Component({
   imports: [
@@ -15,4 +16,11 @@ import { EmailsComponent } from './emails/emails.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {}
+export class AppComponent {
+  uploaderConfig: FilesUploaderConfig = {
+    allowedTypes: ['image/png', 'image/jpeg', 'application/pdf'],
+    maxSizeMB: 5,
+    isProduction: environment.production,
+    prodBaseUrl: environment.apiBaseUrl,
+  };
+}

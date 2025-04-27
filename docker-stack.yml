@@ -1,0 +1,166 @@
+services:
+
+  traefik:
+    image: traefik:v3.2
+    hostname: '{{.Node.Hostname}}-traefik'
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - acme:/home/deploy/acme
+    command:
+      - --providers.swarm=true
+      - --providers.swarm.exposedByDefault=false
+      - --providers.swarm.network=proxy
+      - --log.level=DEBUG
+      - --accesslog=true
+      - --api.dashboard=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=dev-nau@krysinfo.fr
+      - --certificatesresolvers.letsencrypt.acme.storage=/home/deploy/acme/acme.json
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entryPoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.asDefault=true
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+
+    deploy:
+      placement:
+        constraints: [ node.role == manager ]
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.mydashboard.rule=Host(`traefik-smf2.krysinfo.fr`)
+        - traefik.http.routers.mydashboard.service=api@internal
+        - traefik.http.routers.mydashboard.middlewares=myauth
+        - traefik.http.services.mydashboard.loadbalancer.server.port=1337
+        - traefik.http.middlewares.myauth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/
+
+  mysql:
+    image: mysql:9
+    hostname: '{{.Node.Hostname}}-mysql'
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSQL_DATABASE: mysmartfamily
+      MYSQL_USER: mysmartfamily
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_user_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    secrets:
+      - mysql_root_password
+      - mysql_user_password
+    networks:
+      - proxy
+    deploy:
+      placement:
+        constraints: [ node.role == manager ]
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+
+  dufs:
+    image: sigoden/dufs:latest
+    hostname: '{{.Node.Hostname}}-dufs'
+    volumes:
+      - dufs-data:/data
+    command: -A -p 5000 /data
+    networks:
+      - proxy
+    deploy:
+      placement:
+        constraints: [ node.role == manager ]
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.dufs.rule=Host(`dufs-smf2.krysinfo.fr`)
+        - traefik.http.services.dufs.loadbalancer.server.port=5000
+
+  api:
+    image: ghcr.io/krysinfo-dev/mysmartfamily2-api:${COMMIT_HASH:-latest}
+    hostname: '{{.Node.Hostname}}-api'
+    environment:
+      DUFS_MODE: prod
+    secrets:
+      - brevo_api_key
+      - mysql_user_password
+    networks:
+      - proxy
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any
+        delay: 5s
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.api-secure.rule=Host(`smf2.krysinfo.fr`)&&PathPrefix(`/api/`)
+        - traefik.http.services.api.loadbalancer.server.port=3000
+    depends_on:
+      - dufs
+      - mysql
+
+  front:
+    image: ghcr.io/krysinfo-dev/mysmartfamily2-front:${COMMIT_HASH:-latest}
+    hostname: '{{.Node.Hostname}}-front'
+    networks:
+      - proxy
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any
+        delay: 5s
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.front-secure.rule=Host(`smf2.krysinfo.fr`)
+        - traefik.http.services.front.loadbalancer.server.port=80
+    depends_on:
+      - api
+
+secrets:
+  mysql_root_password:
+    external: true
+  mysql_user_password:
+    external: true
+  brevo_api_key:
+    external: true
+
+volumes:
+  dufs-data:
+  mysql-data:
+  acme:
+    name: acme
+
+networks:
+  proxy:
+    name: proxy
+    driver: overlay
+    attachable: true

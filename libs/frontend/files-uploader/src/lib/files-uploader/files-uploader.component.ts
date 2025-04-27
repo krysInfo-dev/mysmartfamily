@@ -1,9 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilesUploaderService } from './files-uploader.service';
 import { HttpEventType } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+export interface FilesUploaderConfig {
+  allowedTypes?: string[];
+  maxSizeMB?: number;
+  isProduction?: boolean;
+  prodBaseUrl?: string;
+}
 
 @Component({
   selector: 'lib-files-uploader',
@@ -14,11 +21,27 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 export class FilesUploaderComponent {
   readonly filesUploaderService = inject(FilesUploaderService);
 
-  allowedTypes = ['image/png', 'image/jpeg', 'application/pdf']; // À adapter
-  maxSizeMB = 5;
+  // Signal d'entrée pour la configuration
+  config = input<FilesUploaderConfig>({
+    allowedTypes: ['image/png', 'image/jpeg', 'application/pdf'],
+    maxSizeMB: 5,
+    isProduction: false,
+    prodBaseUrl: 'http://localhost:4200',
+  });
+
   selectedFiles: File[] = [];
   uploadProgress = 0;
   uploadMessage = '';
+
+  // Getter pour obtenir les types autorisés depuis la configuration
+  get allowedTypes(): string[] {
+    return this.config().allowedTypes || ['image/png', 'image/jpeg', 'application/pdf'];
+  }
+
+  // Getter pour obtenir la taille maximale depuis la configuration
+  get maxSizeMB(): number {
+    return this.config().maxSizeMB || 5;
+  }
 
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -48,13 +71,13 @@ export class FilesUploaderComponent {
     if (!this.selectedFiles.length) return;
 
     const uploadObservables = this.selectedFiles.map((file) =>
-      this.filesUploaderService.uploadFile(file)
+      this.filesUploaderService.uploadFile(this.config().isProduction || false, this.config().prodBaseUrl || '', file)
     );
 
     this.uploadMessage = '';
     this.uploadProgress = 0;
 
-    // Pour chaque fichier on lance l’upload
+    // Pour chaque fichier on lance l'upload
     uploadObservables.forEach((obs) => {
       obs.subscribe({
         next: (event) => {
@@ -89,5 +112,4 @@ export class FilesUploaderComponent {
     this.uploadMessage = '';
     this.uploadProgress = 0;
   }
-
 }

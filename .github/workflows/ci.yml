@@ -1,4 +1,4 @@
-name: CI
+name: Build and deploy to VPS
 
 on:
   push:
@@ -9,9 +9,16 @@ on:
 permissions:
   actions: read
   contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_API: ${{ github.repository }}/api
+  IMAGE_NAME_FRONT: ${{ github.repository }}/front
 
 jobs:
-  main:
+
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +34,7 @@ jobs:
       # Cache node_modules
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - run: npm ci --legacy-peer-deps
@@ -39,3 +46,80 @@ jobs:
       # Nx Affected runs only tasks affected by the changes in this PR/commit. Learn more: https://nx.dev/ci/features/affected
       # When you enable task distribution, run the e2e-ci task instead of e2e
       - run: npx nx affected -t lint test build e2e
+
+  build-docker-images:
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/krysinfo-dev/mysmartfamily2-api:latest
+            ghcr.io/krysinfo-dev/mysmartfamily2-api:${{ github.sha }}
+
+
+      - name: Build and push Front image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/front/Dockerfile
+          push: true
+          tags: |
+              ghcr.io/krysinfo-dev/mysmartfamily2-front:latest
+              ghcr.io/krysinfo-dev/mysmartfamily2-front:${{ github.sha }}
+
+  deploy:
+    needs: [ validate, build-docker-images ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create env file
+        run: |
+          echo "COMMIT_HASH=${{ github.sha }}" > .env
+
+      - name: Copy files to VPS
+        run: |
+          scp docker-stack.yml ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/docker-stack.yml
+          scp .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/.env
+
+      - name: Deploy to VPS
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "\
+            DOMAIN_NAME=${{ secrets.DOMAIN_NAME }} \
+            COMMIT_HASH=${{ github.sha }} \
+            docker stack deploy \
+            --with-registry-auth \
+            --compose-file docker-stack.yml \
+            smf2"
+
+      - name: Cleanup SSH key
+        run: rm -rf ~/.ssh
+        if: always()

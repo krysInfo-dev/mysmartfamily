@@ -1,17 +1,22 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import axios from 'axios';
 import 'multer';
+import * as process from 'node:process';
 
 @Injectable()
 export class DocumentsService {
 
   private readonly dufsBaseUrl = 'http://localhost:5000/';
 
+  private getBaseUrl() {
+    return process.env['DUFS_MODE'] === 'prod' ? 'https://dufs-smf2.krysinfo.fr/' : this.dufsBaseUrl;
+  }
+
   async uploadToDufs(file: Express.Multer.File): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('file', new Blob([file.buffer]), file.originalname);
-      const response = await axios.put(this.dufsBaseUrl + file.originalname , formData, {
+      const response = await axios.put(this.getBaseUrl() + file.originalname , formData, {
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
       });
@@ -28,7 +33,7 @@ export class DocumentsService {
 
   async downloadFromDufs(filename: string) {
     try {
-      const url = `${this.dufsBaseUrl}${encodeURIComponent(filename)}`;
+      const url = `${this.getBaseUrl()}${encodeURIComponent(filename)}`;
       return axios.get(url, {
         responseType: 'stream',
       });
