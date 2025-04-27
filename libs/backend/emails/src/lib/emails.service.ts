@@ -4,6 +4,7 @@ import { EmailCampaignsApi, TransactionalEmailsApi, TransactionalEmailsApiApiKey
 import brevo = require('@getbrevo/brevo');
 import 'multer';
 import { ConfigService } from '@nestjs/config';
+import * as process from 'node:process';
 
 @Injectable()
 export class EmailsService {
@@ -15,6 +16,10 @@ export class EmailsService {
   constructor(private configService: ConfigService) {
     this.transactionalApi = new brevo.TransactionalEmailsApi();
     this.campaignApi = new brevo.EmailCampaignsApi();
+    console.log("BREVO_API_KEY (this.configService.get<string>('BREVO_API_KEY')) :")
+    console.log(this.configService.get<string>('BREVO_API_KEY'));
+    console.log("BREVO_API_KEY (process.env['BREVO_API_KEY']) :")
+    console.log(process.env['BREVO_API_KEY']);
     this.transactionalApi.setApiKey(TransactionalEmailsApiApiKeys.apiKey, this.configService.get<string>('BREVO_API_KEY') || '');
   }
 
